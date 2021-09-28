@@ -1,4 +1,4 @@
-# [📚 Project] Picture_Name_Change 
+# [📚 Project] N_wt_downloader
 ---
 네이버 웹툰을 다운로드 해주는 프로그램
 (This program  downloads webtoons on Naver)
