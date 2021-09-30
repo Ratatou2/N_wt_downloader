@@ -37,7 +37,7 @@
 
 ## 사용법(How to use)
 ----
-[![BLOG](https://user-images.githubusercontent.com/61686603/134801383-bd243f28-682e-4128-b946-e05b0f87e05e.png)](https://blog.naver.com/ws4232/222482194890)
+[![BLOG](https://user-images.githubusercontent.com/61686603/135449625-8fa1d72e-2ed4-4f80-9f69-490b558561b2.png)](https://blog.naver.com/ws4232/222482194890)
 
 
 **First** : 일단 프로그램을 키면 이런 화면이 나온다
@@ -76,4 +76,12 @@
 - 그러고난 후에 다시 이 코드를 똑같이 동작시켜서 1을 입력하면 해결된다
 - 한줄 요약 : 에러나면 엄청 큰 임의의 숫자 하나 입력하고, 다시 돌리면 9할은 해결된다
 - 이름이 같은 파일을 처리하는 코드가 없어서 생기는 에러 ㅠ
+
+## AF(Additional Function)
+----
+
+**Under_dir_unite**
+[![BLOG](https://user-images.githubusercontent.com/61686603/135449625-8fa1d72e-2ed4-4f80-9f69-490b558561b2.png)](https://blog.naver.com/ws4232/222501619886)
+
+- 다운 받은 웹툰의 모든 폴더를 한 폴더로 통합
 
