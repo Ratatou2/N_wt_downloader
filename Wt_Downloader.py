@@ -19,7 +19,7 @@ def clear_text(word):
     return ''.join(char for char in word if char not in special_char)
 
 
-def end(re_time):
+def get_end_time(re_time):
     print('------------------------------------------------------')
     print('다운로드가 완료되었습니다')
     end_time = time.time() - re_time
@@ -51,6 +51,14 @@ def set_directory(directory):
         print('기본 디렉토리로 강제 진행합니다')
         print('D 드라이브가 없을 경우 에러가 발생하니 프로그램을 다시 실행해주세요\n')
 
+    try:
+        os.chdir(directory)
+    except:
+        print('[Warning]')
+        print(f'경로 [ {directory} ]가 확인되지 않습니다.')
+        print(f'[ C:/ ]로 경로를 변경합니다')
+        directory = 'C:/'
+
     return code, directory
 
 
@@ -81,11 +89,29 @@ def get_wt_title(wt_code, wt_dir):
     return wt_code, wt_title, wt_dir
 
 
+# 웹툰 회차 지정 기능
+def set_wt_area():
+    print('<받고 싶은 회차를 다음 예시와 같이 입력해주세요>')
+    print('ex) 7화 한개만 받고 싶은 경우       -> "7~7"  을 입력')
+    print('ex) 2화부터 30화까지 받고 싶은 경우 -> "2~30"  을 입력')
+    print('ex) 50화부터 끝까지 받고 싶은 경우  -> "50~1000" 을 입력')
+    print('ex) 별도의 지정없이 전 회차 다운 받고 싶은 경우 -> 그냥 엔터')
+
+    try:
+        start_ep, end_ep = map(int, input().split('~'))
+    except ValueError:
+        start_ep, end_ep = 1, 1000
+
+    return start_ep, end_ep
+
+
 # 한 웹툰의 모든 회차를 조회 & 회차 제목 가져오는 코드
 def wt_download(wt_code, wt_title, wt_dir):
     begin_time = time.time()
     prev_wt_name = str()
-    for i in range(1, 1000):
+
+    start_ep, end_ep = set_wt_area()
+    for i in range(start_ep, end_ep + 1):
         URL = part_URL + wt_code + '&no=' + str(i)
         html = requests.get(URL, headers=fake_header)
         soup = bs(html.text, 'html.parser')
@@ -152,5 +178,5 @@ if __name__ == '__main__':
     A, B, C = get_wt_title(get_wt_id, get_dir)
     start_time = wt_download(A, B, C)
 
-    end(start_time)
+    get_end_time(start_time)
 
