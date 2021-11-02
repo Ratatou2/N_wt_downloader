@@ -1,90 +1,148 @@
-from selenium import webdriver
+import time, os
 import requests
-import time
+from selenium import webdriver
+from bs4 import BeautifulSoup as bs
 
 
-def one_pack():
-    options = webdriver.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('disable-gpu')
-    options.add_argument('window-size=900x1080')
-    options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
-    options.add_argument("lang=ko_KR")
-
-    # 실제브라우져와 동일하게 작동하는 세션루틴실행
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-    # 지정경로에 세션정보를 디스크에 저장하고 실행시마다 재사용함
-    options.add_argument('--user-data-dir=D:\program')
-
-    driver = webdriver.Chrome('chromedriver.exe', options=options)
-
-    rec_session = login(driver)
-
-    url = 'https://comic.naver.com/webtoon/detail?titleId=729563&no=114&weekday=sat'
-    image_down(make_ep_links(url))
+def make_wt_url(wt_id):
+    basic = 'https://comic.naver.com/webtoon/list?titleId='
+    return basic + wt_id
 
 
-def login(driver):
-    # 웹 자원 로드를 위해 암묵적으로 딜레이
-    delay_time = 3
-    driver.implicitly_wait(delay_time)
-
-    # URL 접근
-    driver.get('https://nid.naver.com/nidlogin.login')
-
-    # ID, PW 입력
-    id = "jo__oh18"
-    pw = "xkfcnfapdlxm0919"
-    driver.find_element_by_name('id').send_keys(id)
-    driver.find_element_by_name('pw').send_keys(pw)
-
-    # 로그인 버튼 클릭
-    driver.find_element_by_xpath('//*[@id="log.login"]').click()
-    time.sleep(20)
-
-    return driver
-
-
-def make_ep_links(ep_URL):
-    driver = webdriver.Chrome("chromedriver.exe")
-
-    time.sleep(3)
-
-    web_elements = driver.find_elements_by_class_name('wt_viewer')
-    # test = driver.find_elements_by_css_selector('#comic_view_area > div.wt_viewer')
-    # test2 = driver.find_elements_by_xpath('//*[@id="comic_view_area"]/div[1]')
-
-    img_list = []
-    for link in web_elements:
-        trans_texts = link.get_attribute('innerHTML').strip()
-        img_list.append(trans_texts)
-
-    print(trans_texts)
-    raw_link = img_list[0].split('comic content')
-
-    cook_link = []
-    for link in raw_link:
-        if 'img src' in link:
-            # 웹 링크로 이미지를 다운로드할 때 양쪽에 "(따옴표)는 빼줘야 함
-            left = link.find('img src')
-            right = link.find(' title')
-            cook_link.append(link[left+9:right-1])
-
-    driver.close()
-    return cook_link
-
-
-def image_down(URLS):
+def image_down(URL, count):
     fake_header = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'}
-    count = 0
-    for i in URLS:
-        ep_html = requests.get(i, headers=fake_header)
-        with open(str(count) + '.png', 'wb+') as f:
-            f.write(ep_html.content)
 
-        count += 1
+    ep_html = requests.get(URL, headers=fake_header)
+    with open(str(count).zfill(3) + '.png', 'wb+') as f:
+        f.write(ep_html.content)
+
+
+def downloads_imgs(temp_text):
+    img_links = temp_text.split(' false" src="')
+
+    count = 0
+    for link in img_links:
+        if 'https://image-comic.pstatic.net/webtoon/' in link:
+            # print(link)
+            # print('---------------')
+            left = link.find('https://image-comic.pstatic.net/webtoon/')
+            right = link.rfind('.jpg')
+
+            refine_link = link[left:right+4]
+            print(refine_link)
+            image_down(refine_link, count)
+            count += 1
+
+
+def set_directory():
+    directory = 'D:/'
+    ask_input = input('기본 디렉토리를 변경하시겠습니까? (y/n) : ')
+
+    if ask_input == 'y':
+        temp = input('지정할 디렉토리를 입력해주세요 : ')
+        directory = temp + '/'
+    elif ask_input == 'n':
+        print('기본 디렉토리를 변경하지 않습니다\n')
+
+    try:
+        os.chdir(directory)
+    except:
+        print('[Warning]')
+        print(f'경로 [ {directory} ]가 확인되지 않습니다.')
+        print(f'[ C:/ ]로 경로를 변경합니다')
+        directory = 'C:/'
+
+    return directory
+
 
 if __name__ == '__main__':
-    one_pack()
+    driver_dir = os.getcwd()
+    fake_header = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'}
+    # wt_id = input('웹툰의 ID를 입력해주십시오 : ')
+    wt_id = '729563'
+    title_url = make_wt_url(wt_id)
+    html = requests.get(title_url, headers=fake_header)
+    soup = bs(html.text, 'html.parser')
+
+    ep_info_all = soup.select_one('#content > div.comicinfo > div.detail > h2')
+
+    pres_dir = set_directory()
+
+    wt_info = [t.text.strip() for t in ep_info_all]
+    wt_title = wt_info[0]
+    print(wt_title)
+
+    try:
+        os.mkdir(pres_dir + wt_title)
+    except FileExistsError:
+        print('같은 이름의 디렉토리가 이미 있는 것 같습니다')
+        os.mkdir(pres_dir + wt_title)
+
+    driver = webdriver.Chrome(driver_dir + '/' + 'chromedriver.exe')
+
+    time.sleep(30)
+
+    s = requests.session()
+
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'}
+    s.headers.update(headers)
+    driver.get_cookies()
+
+    for cookie in driver.get_cookies():
+        c = {cookie['name'] : cookie['value']}
+        s.cookies.update(c)
+
+    wt_basic_url = 'https://comic.naver.com/webtoon/detail?titleId=' + wt_id + '&no='
+    rem_wt_page = 0
+    for i in range(1, 1000):
+        print(wt_basic_url + str(i))
+        response = s.get(wt_basic_url + str(i))
+
+        web_elements = driver.find_elements_by_class_name('wt_viewer')
+
+        img_list = []
+        for link in web_elements:
+            trans_texts = link.get_attribute('innerHTML').strip()
+            img_list.append(trans_texts)
+
+        soup = bs(response.text, 'html.parser')
+
+        raw_links = []
+        for pars in soup:
+            raw_links.append(pars)
+
+        make_file = open(driver_dir + '/' + 'temp1.txt', 'w', encoding='UTF-8')  # [1] 참고
+        print(raw_links, file=make_file)
+        make_file.close()
+
+
+        temp_file = open(driver_dir + '/' + 'temp1.txt', 'r', encoding='UTF-8')
+        temp_text = temp_file.read()
+
+
+        find_wt_title = temp_text.split('meta')
+        for link in find_wt_title:
+
+            if 'property="og:description' in link:
+                left = link.find('nt="')
+                right = link.rfind('" property="og:description"/>')
+                refine_title = link[left+4:right]
+                print(refine_title)
+
+
+
+        ep_dir_title = '[' + str(i).zfill(3) + '] ' + refine_title
+        os.chdir(pres_dir + wt_title)
+        os.mkdir(ep_dir_title)
+        print(f'현재 [{str(i).zfill(3)}] {refine_title} 작업 중입니다')
+        os.chdir(pres_dir + wt_title + '/' + ep_dir_title)
+
+        downloads_imgs(temp_text)
+        os.chdir('..')
+
+
+
+
+'''
+[1] cp949' codec can't encode character '\xa0' in position 3379: illegal multibyte sequence 해결 방법 UTF 추가
+'''
