@@ -23,8 +23,6 @@ def downloads_imgs(temp_text):
     count = 0
     for link in img_links:
         if 'https://image-comic.pstatic.net/webtoon/' in link:
-            # print(link)
-            # print('---------------')
             left = link.find('https://image-comic.pstatic.net/webtoon/')
             right = link.rfind('.jpg')
 
@@ -93,8 +91,9 @@ if __name__ == '__main__':
         s.cookies.update(c)
 
     wt_basic_url = 'https://comic.naver.com/webtoon/detail?titleId=' + wt_id + '&no='
-    rem_wt_page = 0
+    rem_ep_title = str()
     for i in range(1, 1000):
+
         print(wt_basic_url + str(i))
         response = s.get(wt_basic_url + str(i))
 
@@ -119,7 +118,7 @@ if __name__ == '__main__':
         temp_file = open(driver_dir + '/' + 'temp1.txt', 'r', encoding='UTF-8')
         temp_text = temp_file.read()
 
-
+        refine_title = str()
         find_wt_title = temp_text.split('meta')
         for link in find_wt_title:
 
@@ -129,6 +128,8 @@ if __name__ == '__main__':
                 refine_title = link[left+4:right]
                 print(refine_title)
 
+            if rem_ep_title == refine_title:
+                break
 
 
         ep_dir_title = '[' + str(i).zfill(3) + '] ' + refine_title
@@ -138,7 +139,10 @@ if __name__ == '__main__':
         os.chdir(pres_dir + wt_title + '/' + ep_dir_title)
 
         downloads_imgs(temp_text)
+
         os.chdir('..')
+
+        rem_ep_title = refine_title
 
 
 
