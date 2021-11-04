@@ -82,6 +82,7 @@ def get_wt_title(wt_code, wt_dir):
     print(f'<system> <{wt_title}> 확인되었습니다')
     print(f'<system> 지정된 디렉토리에 <{wt_title}> 폴더를 생성합니다')
     print('------------------------------------------------------')
+    wt_title = clear_text(wt_title)
 
     # 웹툰 제목의 폴더를 지정한 경로에 생성
     try:
