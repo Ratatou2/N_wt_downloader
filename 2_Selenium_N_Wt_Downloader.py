@@ -3,6 +3,15 @@ from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 
 
+def my_info():
+    print('------------------------------------------------------')
+    print('제작자 : Ratatou2')
+    print('문의 및 개선 사항은 ws4232@naver.com 으로 메일 부탁드립니다')
+    print('https://github.com/Ratatou2')
+    print('https://blog.naver.com/ws4232')
+    print('------------------------------------------------------')
+
+
 def end_program():
     while True:
         print()
@@ -110,6 +119,7 @@ def get_wt_title(wt_id, fake_header):
 
 
 if __name__ == '__main__':
+    my_info()
     fake_header = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'}
     driver_dir = os.getcwd()
     wt_id = input('<system> 웹툰의 ID를 입력해주십시오 : ')
