@@ -3,6 +3,11 @@
 네이버 웹툰을 다운로드 해주는 프로그램
 (This program  downloads webtoons on Naver)
 
+[프로젝트 폐기 사유]
+- 불법 사이트 유통 가능성을 고려하지 못하였음
+- 개발 취지와는 다른 목적으로 사용될 수 있음을 고려하여 폐기
+https://blog.naver.com/ratatou2_/222482194890
+
 ## 업데이트(update)
 ---
 ### [2021.10.16] N_wt_downloader 1.0.3 업데이트 내역
